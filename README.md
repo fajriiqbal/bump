@@ -148,7 +148,7 @@ python manage.py migrate
 ```bash
 python manage.py collectstatic --noinput
 ```
-11. Arahkan aplikasi ke `passenger_wsgi.py` sebagai entry point.
+11. Arahkan aplikasi ke `app_wsgi.py` sebagai entry point.
 12. Pastikan folder `media/`, `staticfiles/`, dan file database writable.
 13. Bila perlu, upload file `db_dev.sqlite3` yang sudah ada kalau ingin membawa data lokal ke server.
 14. Restart aplikasi Python di cPanel.

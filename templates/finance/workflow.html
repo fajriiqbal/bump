@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block page_title %}Alur Bendahara{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Finance" title="Alur Kerja Bendahara" subtitle="Ikuti urutan ini supaya pengelolaan tagihan, pembayaran, reminder, export, dan backup tidak membingungkan." %}
+
+<div class="grid gap-4 lg:grid-cols-3">
+  <div class="glass-panel p-5 lg:col-span-2">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">Ringkas</div>
+        <h3 class="mt-2 text-2xl font-semibold text-brown-dark">Alur utama yang disarankan</h3>
+        <p class="mt-2 text-sm leading-6 text-stone-500">Mulai dari profil pondok, lanjut master data, generate tagihan, lalu masuk ke reminder, pembayaran, export, dan backup.</p>
+      </div>
+      <a class="btn-primary" href="{% url 'finance:bill_list' %}">Buka Tagihan</a>
+    </div>
+
+    <div class="mt-6 space-y-4">
+      {% for item in workflow_steps %}
+        <div class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div class="flex items-start gap-4">
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brown-primary text-sm font-bold text-white">{{ item.step }}</div>
+            <div class="min-w-0 flex-1">
+              <h4 class="text-lg font-semibold text-brown-dark">{{ item.title }}</h4>
+              <p class="mt-1 text-sm leading-6 text-stone-500">{{ item.hint }}</p>
+              <div class="mt-4 grid gap-2 md:grid-cols-2">
+                {% for action in item.actions %}
+                  <div class="rounded-2xl border border-stone-200 bg-cream/50 px-4 py-3 text-sm text-stone-700">{{ action }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <div class="glass-panel p-5">
+      <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">Checklist</div>
+      <h3 class="mt-2 text-xl font-semibold text-brown-dark">Sebelum mulai kerja</h3>
+      <div class="mt-4 space-y-3">
+        {% for check in quick_checks %}
+          <div class="flex items-start gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-700">
+            <span class="mt-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+            <span>{{ check }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="glass-panel p-5">
+      <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">Shortcut</div>
+      <h3 class="mt-2 text-xl font-semibold text-brown-dark">Menu yang paling sering dipakai</h3>
+      <div class="mt-4 grid gap-2">
+        <a class="btn-secondary justify-center" href="{% url 'finance:bill_list' %}">Daftar Tagihan</a>
+        <a class="btn-secondary justify-center" href="{% url 'finance:bill_generate' %}">Generate Tagihan</a>
+        <a class="btn-secondary justify-center" href="{% url 'finance:payment_list' %}">Riwayat Pembayaran</a>
+        <a class="btn-secondary justify-center" href="{% url 'finance:reminder_schedule' %}">Reminder WhatsApp</a>
+        <a class="btn-secondary justify-center" href="{% url 'reports:index' %}">Export Laporan</a>
+        <a class="btn-secondary justify-center" href="{% url 'backup:index' %}">Backup & Restore</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block page_title %}Generate Tagihan{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Finance" title="Generate Tagihan" subtitle="Buat tagihan untuk santri aktif berdasarkan jenis pembayaran dan periode yang dipilih." %}
+
+<div class="grid gap-6 xl:grid-cols-3">
+  <div class="glass-panel p-5 sm:p-6 xl:col-span-2">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">Generate</div>
+        <h2 class="mt-2 text-2xl font-semibold text-brown-dark">Buat tagihan baru</h2>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-stone-600">
+          Sistem akan membuat tagihan untuk seluruh santri aktif yang belum punya tagihan pada periode tersebut.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a class="btn-secondary" href="{% url 'finance:bill_list' %}">Kembali</a>
+      </div>
+    </div>
+
+    <form class="mt-8 space-y-5" method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        {% include "components/form_field.html" with field=field full=True %}
+      {% endfor %}
+      <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
+        <button type="submit" class="btn-primary">Generate Tagihan</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="space-y-6">
+    <div class="glass-panel p-5 sm:p-6">
+      <div class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">Catatan</div>
+      <h3 class="mt-2 text-xl font-semibold text-brown-dark">Aturan generate</h3>
+      <ul class="mt-4 space-y-3 text-sm leading-6 text-stone-600">
+        <li>Tagihan otomatis dibuat untuk semua santri aktif.</li>
+        <li>Jika tagihan periode yang sama sudah ada, sistem akan melewati data tersebut.</li>
+        <li>Nominal tagihan mengikuti nominal default dari jenis pembayaran yang dipilih.</li>
+        <li>Jatuh tempo dihitung otomatis 7 hari sebelum akhir bulan periode tagihan.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

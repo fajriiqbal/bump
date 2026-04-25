@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block page_title %}Detail Tagihan{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Finance" title=student.nama_lengkap subtitle="Ringkasan tagihan per santri berikut semua pembayaran yang sudah tercatat." %}
+
+<div class="grid gap-6 xl:grid-cols-3">
+  <div class="glass-panel p-6 xl:col-span-1">
+    <div class="rounded-3xl bg-cream/70 p-5">
+      <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Santri</div>
+      <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ student.nama_lengkap }}</div>
+      <div class="mt-2 text-sm text-stone-500">{{ student.nis }}</div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="badge bg-cream text-brown-dark">{{ student.kelas|default:"-" }}</span>
+        <span class="badge {% if student.status == 'aktif' %}bg-emerald-100 text-emerald-700{% elif student.status == 'alumni' %}bg-stone-100 text-stone-700{% else %}bg-amber-100 text-amber-700{% endif %}">
+          {{ student.get_status_display }}
+        </span>
+      </div>
+    </div>
+
+    <div class="mt-5 space-y-3 text-sm text-stone-600">
+      <div><span class="font-semibold text-brown-dark">Wali:</span> {{ student.nama_wali|default:"-" }}</div>
+      <div><span class="font-semibold text-brown-dark">WhatsApp:</span> {{ student.no_wa_wali|default:"-" }}</div>
+      <div><span class="font-semibold text-brown-dark">Kamar:</span> {{ student.kamar|default:"-" }}</div>
+      <div><span class="font-semibold text-brown-dark">Tahun Ajaran:</span> {{ student.tahun_ajaran|default:"-" }}</div>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-2">
+      <a class="btn-secondary" href="{% url 'finance:bill_list' %}">Kembali</a>
+      {% if bills %}
+        <a class="btn-secondary" href="{% url 'finance:bill_invoice_pdf' bills.0.pk %}" target="_blank" rel="noopener">Unduh Invoice PDF</a>
+      {% endif %}
+      {% if student.no_wa_wali and bills %}
+        <form action="{% url 'notifications:send_student_reminder' student.pk %}" method="post">
+          {% csrf_token %}
+          <button class="btn-primary" type="submit">Kirim Reminder</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="space-y-6 xl:col-span-2">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="glass-panel p-5">
+        <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Total Tagihan</div>
+        <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ summary.total_tagihan|rupiah }}</div>
+      </div>
+      <div class="glass-panel p-5">
+        <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Sudah Dibayar</div>
+        <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ summary.total_dibayar|rupiah }}</div>
+      </div>
+      <div class="glass-panel p-5">
+        <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Sisa Tagihan</div>
+        <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ summary.total_sisa|rupiah }}</div>
+      </div>
+      <div class="glass-panel p-5">
+        <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Status</div>
+        <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ summary.bill_count }} tagihan</div>
+      </div>
+    </div>
+
+    <div class="glass-panel p-5 sm:p-6">
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 class="section-title">Daftar Tagihan</h3>
+          <p class="section-subtitle">Setiap baris mewakili satu periode/tagihan yang tercatat.</p>
+        </div>
+        <span class="badge bg-cream text-brown-dark">{{ summary.open_bills }} tagihan aktif</span>
+      </div>
+
+      <div class="overflow-hidden rounded-3xl border border-stone-200 bg-white">
+        <div class="overflow-x-auto">
+          <table class="table-modern">
+            <thead class="bg-cream/80 text-left text-xs uppercase tracking-[0.2em] text-stone-500">
+              <tr>
+                <th class="px-5 py-4">Periode</th>
+                <th class="px-5 py-4">Jenis</th>
+                <th class="px-5 py-4">Total</th>
+                <th class="px-5 py-4">Dibayar</th>
+                <th class="px-5 py-4">Sisa</th>
+                <th class="px-5 py-4">Jatuh Tempo</th>
+                <th class="px-5 py-4">Status</th>
+                <th class="px-5 py-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              {% for bill in bills %}
+                <tr class="transition hover:bg-cream/40">
+                  <td class="px-5 py-4 font-medium text-brown-dark">{{ bill.periode_bulan }}/{{ bill.periode_tahun }}</td>
+                  <td class="px-5 py-4">
+                    <div class="font-semibold text-brown-dark">{{ bill.jenis_pembayaran.nama }}</div>
+                    <div class="mt-1 text-sm text-stone-500">{{ bill.jenis_pembayaran.kategori }}</div>
+                  </td>
+                  <td class="px-5 py-4">{{ bill.total_tagihan|rupiah }}</td>
+                  <td class="px-5 py-4">{{ bill.total_dibayar|rupiah }}</td>
+                  <td class="px-5 py-4">{{ bill.sisa_tagihan|rupiah }}</td>
+                  <td class="px-5 py-4 text-sm text-stone-600">{{ bill.jatuh_tempo|date:"d M Y"|default:"-" }}</td>
+                  <td class="px-5 py-4">
+                    <span class="badge {% if bill.effective_status == 'lunas' %}bg-emerald-100 text-emerald-700{% elif bill.effective_status == 'sebagian' %}bg-amber-100 text-amber-700{% elif bill.effective_status == 'terlambat' %}bg-red-100 text-red-700{% else %}bg-stone-100 text-stone-700{% endif %}">
+                      {{ bill.effective_status_label }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-4">
+                    <div class="flex justify-end gap-2">
+                      <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'finance:bill_invoice_pdf' bill.pk %}" target="_blank" rel="noopener">Invoice</a>
+                      {% if student.no_wa_wali %}
+                        <form action="{% url 'notifications:send_bill_reminder' bill.id %}" method="post">
+                          {% csrf_token %}
+                          <button class="btn-secondary px-3 py-2 text-xs" type="submit">Kirim</button>
+                        </form>
+                      {% endif %}
+                      {% if bill.sisa_tagihan > 0 %}
+                        <a class="btn-primary px-3 py-2 text-xs" href="{% url 'finance:payment_create' bill.id %}">Bayar</a>
+                      {% else %}
+                        <span class="badge bg-emerald-100 text-emerald-700">Lunas</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="px-5 py-10">
+                    {% include "components/empty_state.html" with title="Belum ada tagihan" description="Santri ini belum memiliki tagihan yang tercatat." %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-panel p-5 sm:p-6">
+      <div class="mb-5">
+        <h3 class="section-title">Riwayat Pembayaran</h3>
+        <p class="section-subtitle">Semua transaksi untuk santri ini ditampilkan di sini.</p>
+      </div>
+
+      <div class="overflow-hidden rounded-3xl border border-stone-200 bg-white">
+        <div class="overflow-x-auto">
+          <table class="table-modern">
+            <thead class="bg-cream/80 text-left text-xs uppercase tracking-[0.2em] text-stone-500">
+              <tr>
+                <th class="px-5 py-4">Nomor</th>
+                <th class="px-5 py-4">Tagihan</th>
+                <th class="px-5 py-4">Jumlah</th>
+                <th class="px-5 py-4">Metode</th>
+                <th class="px-5 py-4">Verifikasi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              {% for payment in payments %}
+                <tr class="transition hover:bg-cream/40">
+                  <td class="px-5 py-4 font-medium text-brown-dark">{{ payment.nomor_transaksi }}</td>
+                  <td class="px-5 py-4">
+                    <div class="font-semibold text-brown-dark">{{ payment.bill.jenis_pembayaran.nama }}</div>
+                    <div class="mt-1 text-sm text-stone-500">{{ payment.bill.periode_bulan }}/{{ payment.bill.periode_tahun }}</div>
+                  </td>
+                  <td class="px-5 py-4">{{ payment.jumlah_bayar|rupiah }}</td>
+                  <td class="px-5 py-4">
+                    <span class="badge bg-cream text-brown-dark">{{ payment.get_metode_bayar_display }}</span>
+                  </td>
+                  <td class="px-5 py-4">
+                    <span class="badge {% if payment.verified %}bg-emerald-100 text-emerald-700{% else %}bg-amber-100 text-amber-700{% endif %}">
+                      {% if payment.verified %}Terverifikasi{% else %}Menunggu{% endif %}
+                    </span>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="px-5 py-10">
+                    {% include "components/empty_state.html" with title="Belum ada pembayaran" description="Riwayat pembayaran akan tampil setelah transaksi dicatat." %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block page_title %}Profil Pondok{% endblock %}
+{% block content %}
+<div class="form-intro">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <div class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">Setup</div>
+      <h2 class="mt-2 form-intro-title">Profil Pondok</h2>
+      <p class="form-intro-text">Lengkapi identitas pondok sekali saja. Data ini akan dipakai di dashboard, invoice, dan export laporan.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a class="btn-secondary" href="{% url 'dashboard:home' %}">Lihat Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<div class="glass-panel mb-5 border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-900">
+  {% if profile_ready %}
+    Profil pondok sudah lengkap. Kamu tetap bisa memperbarui datanya di sini.
+  {% else %}
+    Profil pondok belum lengkap. Isi data di bawah agar aplikasi bisa menampilkan identitas pondok dan export berjalan dinamis.
+  {% endif %}
+</div>
+
+<form method="post" class="form-page">
+  {% csrf_token %}
+  <div class="grid gap-6 lg:grid-cols-2">
+    <div class="form-section">
+      <h3 class="form-section-title">Identitas Utama</h3>
+      <p class="form-section-desc">Nama pondok, alamat, dan wilayah yang akan tampil di aplikasi.</p>
+      <div class="mt-6 divide-y divide-stone-200/70">
+        {% include "components/form_field.html" with field=form.nama_pondok full=True %}
+        {% include "components/form_field.html" with field=form.alamat full=True %}
+        {% include "components/form_field.html" with field=form.kota full=True %}
+      </div>
+    </div>
+    <div class="form-section">
+      <h3 class="form-section-title">Kontak & Penanggung Jawab</h3>
+      <p class="form-section-desc">Dipakai untuk kop dokumen, footer laporan, dan identitas resmi.</p>
+      <div class="mt-6 divide-y divide-stone-200/70">
+        {% include "components/form_field.html" with field=form.telepon full=True %}
+        {% include "components/form_field.html" with field=form.email full=True %}
+        {% include "components/form_field.html" with field=form.website full=True %}
+        {% include "components/form_field.html" with field=form.kepala_pesantren full=True %}
+        {% include "components/form_field.html" with field=form.bendahara_nama full=True %}
+        {% include "components/form_field.html" with field=form.bendahara_telepon full=True %}
+        {% include "components/form_field.html" with field=form.wa_admin full=True %}
+        {% include "components/form_field.html" with field=form.motto full=True %}
+        {% include "components/form_field.html" with field=form.catatan full=True %}
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h3 class="form-section-title">Informasi Pembayaran</h3>
+    <p class="form-section-desc">Dipakai otomatis di pesan WhatsApp dan invoice tagihan.</p>
+    <div class="mt-6 divide-y divide-stone-200/70">
+      {% include "components/form_field.html" with field=form.bank_nama full=True %}
+      {% include "components/form_field.html" with field=form.bank_nomor_rekening full=True %}
+      {% include "components/form_field.html" with field=form.bank_atas_nama full=True %}
+      {% include "components/form_field.html" with field=form.qris_url full=True %}
+    </div>
+  </div>
+
+  <div class="wizard-nav mt-6">
+    <div class="text-sm text-stone-500">Simpan sekali, lalu sistem akan memakai data ini di seluruh modul.</div>
+    <div class="wizard-nav-right">
+      <button type="submit" class="btn-primary">Simpan Profil</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

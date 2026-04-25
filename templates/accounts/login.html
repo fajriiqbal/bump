@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - Sistem Keuangan Pesantren</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+<body class="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(212,163,115,0.18),_transparent_30%),linear-gradient(135deg,#3E2C23_0%,#6B4F3A_38%,#F8F1E7_100%)] font-sans">
+  <div class="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl overflow-hidden rounded-[2rem] border border-white/30 bg-white/20 shadow-[0_30px_100px_rgba(0,0,0,0.18)] backdrop-blur-xl lg:grid-cols-2">
+      <div class="flex flex-col justify-between p-8 text-white sm:p-10 lg:p-12">
+        <div>
+          <div class="inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em]">Pesantren Finance</div>
+          <h1 class="mt-8 max-w-xl text-4xl font-semibold leading-tight sm:text-5xl">Sistem keuangan pondok yang bersih, hangat, dan profesional.</h1>
+          <p class="mt-5 max-w-lg text-sm leading-6 text-white/80 sm:text-base">Masuk untuk mengelola santri, tagihan, pembayaran, laporan, dan notifikasi dengan tampilan modern yang nyaman digunakan di mobile maupun desktop.</p>
+        </div>
+        <div class="mt-10 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-3xl border border-white/20 bg-white/10 p-4">
+            <div class="text-xs uppercase tracking-[0.3em] text-white/60">Role</div>
+            <div class="mt-2 text-lg font-semibold">Admin, Pengasuh, Wali</div>
+          </div>
+          <div class="rounded-3xl border border-white/20 bg-white/10 p-4">
+            <div class="text-xs uppercase tracking-[0.3em] text-white/60">Stack</div>
+            <div class="mt-2 text-lg font-semibold">Django + Tailwind</div>
+          </div>
+          <div class="rounded-3xl border border-white/20 bg-white/10 p-4">
+            <div class="text-xs uppercase tracking-[0.3em] text-white/60">Mode</div>
+            <div class="mt-2 text-lg font-semibold">Responsive</div>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-center bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(248,241,231,0.92))] p-6 sm:p-10">
+        <div class="w-full max-w-md">
+          <div class="glass-panel p-8">
+            <div class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">Selamat Datang</div>
+            <h2 class="mt-3 text-3xl font-semibold text-brown-dark">Login ke Sistem</h2>
+            <p class="mt-2 text-sm text-stone-500">Gunakan akun yang sudah terdaftar sesuai role Anda.</p>
+            <form method="post" class="mt-8 space-y-5">
+              {% csrf_token %}
+              {% for field in form %}
+                {% include "components/form_field.html" with field=field %}
+              {% endfor %}
+              <button class="btn-primary w-full py-3" type="submit">Masuk</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

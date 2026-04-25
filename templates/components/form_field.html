@@ -1,0 +1,43 @@
+{% if field.field.widget.input_type == "checkbox" %}
+  <div class="form-row {% if full %}form-row-full{% endif %}">
+    <div class="form-row-body">
+      <label class="form-toggle {% if field.errors %}form-toggle-error{% endif %}" for="{{ field.id_for_label }}">
+        <span class="form-toggle-control">
+          {{ field }}
+          <span>
+            <span class="soft-field-label">{{ field.label }}</span>
+            {% if field.help_text %}<span class="soft-field-help">{{ field.help_text }}</span>{% endif %}
+          </span>
+        </span>
+        {% if field.field.required %}
+          <span class="required-mark shrink-0" aria-hidden="true"></span>
+        {% endif %}
+      </label>
+      {% if field.errors %}
+        <div class="mt-2 space-y-1 text-xs text-red-600">
+          {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% else %}
+  <div class="form-row {% if full %}form-row-full{% endif %}">
+    <div class="form-row-label flex items-center justify-between gap-3">
+      <label class="soft-field-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {% if field.field.required %}
+        <span class="required-mark shrink-0" aria-hidden="true"></span>
+      {% endif %}
+    </div>
+    <div class="form-row-body">
+      <div class="form-underline {% if field.errors %}form-underline-error{% endif %}">
+        {{ field }}
+      </div>
+      {% if field.help_text %}<p class="soft-field-help">{{ field.help_text }}</p>{% endif %}
+      {% if field.errors %}
+        <div class="mt-2 space-y-1 text-xs text-red-600">
+          {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

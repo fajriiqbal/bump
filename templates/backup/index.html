@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block page_title %}Backup & Restore{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Backup" title="Backup & Restore" subtitle="Satu halaman untuk membuat salinan data dan memulihkan backup dengan alur yang jelas untuk bendahara." %}
+
+<div class="grid gap-4 xl:grid-cols-3">
+  <div class="glass-panel p-5 xl:col-span-1">
+    <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">Langkah 1</div>
+    <h3 class="mt-3 text-lg font-semibold text-brown-dark">Buat Backup</h3>
+    <p class="mt-2 text-sm leading-6 text-stone-500">Klik tombol di bawah untuk membuat snapshot data terbaru. Cocok dilakukan sebelum perubahan besar atau sebelum restore.</p>
+    <div class="mt-5 rounded-2xl border border-stone-200 bg-cream/60 p-4">
+      <div class="text-xs uppercase tracking-[0.2em] text-stone-500">Status terakhir</div>
+      <div class="mt-2 text-sm text-stone-600">
+        {% if backup_exists %}
+          File terakhir: <span class="font-semibold text-brown-dark">{{ latest_backup.name }}</span>
+        {% else %}
+          Belum ada file backup yang tersimpan.
+        {% endif %}
+      </div>
+    </div>
+    <form class="mt-5" method="post" action="{% url 'backup:create' %}">
+      {% csrf_token %}
+      <button class="btn-primary w-full px-4 py-3 text-sm" type="submit">Backup Sekarang</button>
+    </form>
+  </div>
+
+  <div class="glass-panel p-5 xl:col-span-2">
+    <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">Langkah 2</div>
+    <h3 class="mt-3 text-lg font-semibold text-brown-dark">Pulihkan Data</h3>
+    <p class="mt-2 text-sm leading-6 text-stone-500">Upload file backup JSON lalu konfirmasi restore. Form ini dibuat agar operator tahu file mana yang dipilih dan risiko aksinya.</p>
+
+    <div class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+      Restore akan memulihkan data sesuai isi file backup. Pastikan file benar dan backup terbaru sudah disimpan.
+    </div>
+
+    <form class="mt-5 space-y-4" method="post" action="{% url 'backup:restore' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="grid gap-4">
+        {% include "components/form_field.html" with field=restore_form.backup_file full=True %}
+        {% include "components/form_field.html" with field=restore_form.confirm_restore full=True %}
+      </div>
+      <div class="flex flex-col gap-3 border-t border-stone-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-sm text-stone-500">Pilih file backup, cek kembali, lalu jalankan restore.</div>
+        <button class="btn-primary px-4 py-3 text-sm" type="submit">Jalankan Restore</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

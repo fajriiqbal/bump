@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block page_title %}Template Pesan{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Notifications" title="Template Pesan" subtitle="Susun pesan reminder yang bisa dipakai untuk tagihan, follow up, atau notifikasi lain." %}
+
+<div class="glass-panel p-5 sm:p-6">
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <span class="badge bg-cream text-brown-dark">{{ items|length }} template</span>
+    <div class="flex flex-wrap gap-2">
+      <a class="btn-secondary" href="{% url 'notifications:index' %}">Kembali</a>
+      <a class="btn-primary" href="{% url 'notifications:template_create' %}">Tambah Template</a>
+    </div>
+  </div>
+  <div class="overflow-hidden rounded-3xl border border-stone-200 bg-white">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead class="bg-cream/80 text-left text-xs uppercase tracking-[0.2em] text-stone-500">
+          <tr>
+            <th class="px-5 py-4">Kode</th>
+            <th class="px-5 py-4">Judul</th>
+            <th class="px-5 py-4">Status</th>
+            <th class="px-5 py-4">Isi</th>
+            <th class="px-5 py-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-100">
+          {% for item in items %}
+            <tr class="transition hover:bg-cream/40">
+              <td class="px-5 py-4 font-semibold text-brown-dark">{{ item.code }}</td>
+              <td class="px-5 py-4 text-sm text-stone-600">{{ item.title }}</td>
+              <td class="px-5 py-4">
+                <span class="badge {% if item.active %}bg-emerald-100 text-emerald-700{% else %}bg-stone-100 text-stone-500{% endif %}">
+                  {% if item.active %}Aktif{% else %}Nonaktif{% endif %}
+                </span>
+              </td>
+              <td class="px-5 py-4 text-sm text-stone-600">
+                <div class="max-h-24 overflow-hidden">{{ item.body }}</div>
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'notifications:template_update' item.id %}">Edit</a>
+                  <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'notifications:template_delete' item.id %}">Hapus</a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="px-5 py-10">
+                {% include "components/empty_state.html" with title="Belum ada template" description="Tambahkan template untuk reminder yang lebih konsisten." %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

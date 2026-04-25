@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block page_title %}Jenis Pembayaran{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Finance" title="Jenis Pembayaran" subtitle="Atur kategori tagihan, nominal default, dan skema pembayaran yang berlaku." %}
+
+<div class="glass-panel p-5 sm:p-6">
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <span class="badge bg-cream text-brown-dark">{{ items|length }} item</span>
+    <a class="btn-primary" href="{% url 'finance:payment_type_create' %}">Tambah Jenis</a>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    {% for item in items %}
+      <div class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-semibold text-brown-dark">{{ item.nama }}</h3>
+            <p class="mt-1 text-sm text-stone-500">{{ item.kategori }}</p>
+          </div>
+          <span class="badge {% if item.aktif %}bg-emerald-100 text-emerald-700{% else %}bg-stone-100 text-stone-700{% endif %}">
+            {% if item.aktif %}Aktif{% else %}Nonaktif{% endif %}
+          </span>
+        </div>
+        <div class="mt-4 grid gap-3 text-sm text-stone-600">
+          <div class="flex items-center justify-between"><span>Tipe</span><strong class="text-brown-dark">{{ item.get_tipe_display }}</strong></div>
+          <div class="soft-divider"></div>
+          <div class="flex items-center justify-between"><span>Nominal</span><strong class="text-brown-dark">{{ item.nominal_default|rupiah }}</strong></div>
+          <div class="flex items-center justify-between"><span>Denda / Hari</span><strong class="text-brown-dark">{{ item.denda_per_hari|rupiah }}</strong></div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="md:col-span-2 xl:col-span-3">
+        {% include "components/empty_state.html" with title="Belum ada jenis pembayaran" description="Tambahkan jenis pembayaran untuk mulai membuat tagihan otomatis." action='<a class="btn-primary" href="/finance/payment-types/tambah/">Tambah Jenis Pembayaran</a>' %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

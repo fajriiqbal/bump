@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<div class="mb-8 rounded-[2rem] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(247,239,228,0.96))] p-6 shadow-soft sm:p-8">
+  <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div class="max-w-3xl">
+      <div class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">Ringkasan Operasional</div>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-brown-dark sm:text-5xl">Dashboard keuangan yang fokus, rapi, dan mudah dipakai.</h2>
+      <p class="mt-4 max-w-2xl text-sm leading-6 text-stone-600 sm:text-base">
+        Pantau kondisi santri, tagihan, pembayaran, dan kas tanpa dekorasi yang berlebihan.
+        Semua angka penting diringkas supaya keputusan bisa diambil lebih cepat.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a class="btn-primary" href="{% url 'finance:bill_list' %}">Buka Tagihan</a>
+      <a class="btn-secondary" href="{% url 'reports:index' %}">Lihat Laporan</a>
+    </div>
+  </div>
+</div>
+
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  {% include "components/stat_card.html" with title="Santri Aktif" value=stats.active_students subtitle="Santri dengan status aktif" %}
+  {% include "components/stat_card.html" with title="Tagihan Tertunda" value=stats.pending_bills subtitle="Tagihan yang belum lunas" %}
+  {% include "components/stat_card.html" with title="Tunggakan Terlambat" value=stats.overdue_bills subtitle="Perlu diprioritaskan" %}
+  {% include "components/stat_card.html" with title="Saldo Kas" value=stats.cash_balance|rupiah subtitle="Gabungan saldo kas dan transaksi" %}
+</div>
+
+<div class="mt-6 grid gap-6 xl:grid-cols-3">
+  <div class="glass-panel p-6 xl:col-span-2">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">Tren {{ current_year }}</div>
+        <h3 class="section-title">Arus Keuangan Bulanan</h3>
+        <p class="section-subtitle">Perbandingan pemasukan, pembayaran, dan pengeluaran per bulan.</p>
+      </div>
+      <span class="badge bg-cream text-brown-dark">12 bulan</span>
+    </div>
+    <div class="mt-6 rounded-3xl bg-cream/60 p-4">
+      <canvas id="financeChart" height="130"></canvas>
+    </div>
+  </div>
+
+  <div class="glass-panel p-6">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">Prioritas</div>
+        <h3 class="section-title">Fokus Hari Ini</h3>
+        <p class="section-subtitle">Ringkasan area yang perlu diperhatikan.</p>
+      </div>
+      <span class="badge bg-gold-soft/15 text-brown-primary">{{ overdue_students|length }} santri</span>
+    </div>
+
+    <div class="mt-5 space-y-3">
+      <div class="rounded-3xl border border-stone-200 bg-white px-4 py-4 shadow-sm">
+        <div class="text-xs uppercase tracking-[0.22em] text-stone-500">Santri aktif</div>
+        <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ stats.active_students }}</div>
+        <div class="mt-1 text-sm text-stone-500">Basis data operasional saat ini.</div>
+      </div>
+      <div class="rounded-3xl border border-stone-200 bg-white px-4 py-4 shadow-sm">
+        <div class="text-xs uppercase tracking-[0.22em] text-stone-500">Tagihan tertunda</div>
+        <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ stats.pending_bills }}</div>
+        <div class="mt-1 text-sm text-stone-500">Perlu dicek untuk tindak lanjut.</div>
+      </div>
+      <div class="rounded-3xl border border-stone-200 bg-white px-4 py-4 shadow-sm">
+        <div class="text-xs uppercase tracking-[0.22em] text-stone-500">Pembayaran masuk</div>
+        <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ stats.monthly_payments|rupiah }}</div>
+        <div class="mt-1 text-sm text-stone-500">Akumulasi transaksi pembayaran.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+  <div class="glass-panel p-6">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <h3 class="section-title">Tagihan Belum Lunas</h3>
+        <p class="section-subtitle">Daftar santri yang perlu diprioritaskan.</p>
+      </div>
+      <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'finance:bill_list' %}">Buka Tagihan</a>
+    </div>
+    <div class="mt-5 space-y-3">
+      {% for student in overdue_students %}
+        <div class="rounded-3xl border border-stone-200 bg-white px-4 py-4 shadow-sm">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="font-semibold text-brown-dark">{{ student.nama_lengkap }}</div>
+              <div class="mt-1 text-sm text-stone-500">{{ student.kelas|default:"-" }} / {{ student.kamar|default:"-" }}</div>
+            </div>
+            <span class="badge bg-stone-100 text-stone-700">Perlu cek</span>
+          </div>
+        </div>
+      {% empty %}
+        {% include "components/empty_state.html" with title="Tidak ada tunggakan aktif" description="Semua tagihan terpantau lunas atau belum ada data yang terlambat." %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="glass-panel p-6">
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <h3 class="section-title">Pembayaran Terbaru</h3>
+        <p class="section-subtitle">Transaksi yang paling baru dicatat.</p>
+      </div>
+      <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'finance:payment_list' %}">Riwayat</a>
+    </div>
+    <div class="mt-5 space-y-3">
+      {% for payment in recent_payments %}
+        <div class="rounded-3xl border border-stone-200 bg-white px-4 py-4 shadow-sm">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="font-semibold text-brown-dark">{{ payment.santri.nama_lengkap }}</div>
+              <div class="mt-1 text-sm text-stone-500">{{ payment.bill.jenis_pembayaran.nama }} - {{ payment.bill.periode_bulan }}/{{ payment.bill.periode_tahun }}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-semibold text-brown-dark">{{ payment.jumlah_bayar|rupiah }}</div>
+              <div class="mt-1 text-xs uppercase tracking-[0.2em] text-stone-500">{{ payment.get_metode_bayar_display }}</div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        {% include "components/empty_state.html" with title="Belum ada pembayaran" description="Transaksi pembayaran akan tampil setelah dicatat." %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('financeChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [
+          {
+            label: 'Pemasukan',
+            data: {{ income_series|safe }},
+            borderColor: '#6B4F3A',
+            backgroundColor: 'rgba(107,79,58,0.08)',
+            tension: 0.35,
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0
+          },
+          {
+            label: 'Pembayaran',
+            data: {{ payment_series|safe }},
+            borderColor: '#B08968',
+            backgroundColor: 'rgba(176,137,104,0.08)',
+            tension: 0.35,
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0
+          },
+          {
+            label: 'Pengeluaran',
+            data: {{ expense_series|safe }},
+            borderColor: '#8D6E63',
+            backgroundColor: 'rgba(141,110,99,0.08)',
+            tension: 0.35,
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 12,
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': Rp ' + Number(context.parsed.y || 0).toLocaleString('id-ID');
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            grid: { color: 'rgba(62,44,35,0.08)' },
+            ticks: {
+              callback: function(value) {
+                return 'Rp ' + Number(value || 0).toLocaleString('id-ID');
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="glass-panel mx-auto max-w-xl p-6">
+  <h2 class="text-xl font-bold">Konfirmasi Hapus</h2>
+  <form method="post" class="mt-4">
+    {% csrf_token %}
+    <button class="btn-primary" type="submit">Ya, hapus</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block page_title %}Gateway WhatsApp{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Notifications" title="Gateway WhatsApp" subtitle="Kelola konfigurasi gateway untuk mengirim reminder otomatis." %}
+
+<div class="glass-panel p-5 sm:p-6">
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <span class="badge bg-cream text-brown-dark">{{ items|length }} gateway</span>
+    <div class="flex flex-wrap gap-2">
+      <a class="btn-secondary" href="{% url 'notifications:index' %}">Kembali</a>
+      <a class="btn-primary" href="{% url 'notifications:gateway_create' %}">Tambah Gateway</a>
+    </div>
+  </div>
+  <div class="overflow-hidden rounded-3xl border border-stone-200 bg-white">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead class="bg-cream/80 text-left text-xs uppercase tracking-[0.2em] text-stone-500">
+          <tr>
+            <th class="px-5 py-4">Nama</th>
+            <th class="px-5 py-4">API</th>
+            <th class="px-5 py-4">Sender</th>
+            <th class="px-5 py-4">Status</th>
+            <th class="px-5 py-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-100">
+          {% for item in items %}
+            <tr class="transition hover:bg-cream/40">
+              <td class="px-5 py-4 font-semibold text-brown-dark">{{ item.name }}</td>
+              <td class="px-5 py-4 break-all text-sm text-stone-600">{{ item.api_url }}</td>
+              <td class="px-5 py-4 text-sm text-stone-600">{{ item.sender|default:"-" }}</td>
+              <td class="px-5 py-4">
+                <span class="badge {% if item.active %}bg-emerald-100 text-emerald-700{% else %}bg-stone-100 text-stone-500{% endif %}">
+                  {% if item.active %}Aktif{% else %}Nonaktif{% endif %}
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'notifications:gateway_update' item.id %}">Edit</a>
+                  <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'notifications:gateway_delete' item.id %}">Hapus</a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="px-5 py-10">
+                {% include "components/empty_state.html" with title="Belum ada gateway" description="Tambahkan konfigurasi gateway pertama agar tombol kirim bisa aktif." %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block page_title %}Detail Santri{% endblock %}
+{% block content %}
+<div class="grid gap-6 xl:grid-cols-3">
+  <div class="glass-panel p-6 xl:col-span-1">
+    <div class="aspect-[4/5] overflow-hidden rounded-3xl bg-cream">
+      {% if student.foto %}
+        <img src="{{ student.foto.url }}" alt="{{ student.nama_lengkap }}" class="h-full w-full object-cover">
+      {% else %}
+        <div class="flex h-full items-center justify-center text-center text-stone-400">
+          <div>
+            <div class="text-5xl">👤</div>
+            <div class="mt-3 text-sm">Foto belum tersedia</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    <div class="mt-5">
+      <h2 class="text-2xl font-semibold text-brown-dark">{{ student.nama_lengkap }}</h2>
+      <p class="mt-1 text-sm text-stone-500">{{ student.nis }}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="badge {% if student.status == 'aktif' %}bg-emerald-100 text-emerald-700{% elif student.status == 'alumni' %}bg-stone-100 text-stone-700{% else %}bg-amber-100 text-amber-700{% endif %}">{{ student.get_status_display }}</span>
+        <span class="badge bg-cream text-brown-dark">{{ student.kelas|default:"-" }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-panel p-6 xl:col-span-2">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h3 class="section-title">Biodata Lengkap</h3>
+        <p class="section-subtitle">Informasi identitas dan wali santri.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a class="btn-secondary" href="{% url 'students:update' student.pk %}">Edit</a>
+        <a class="btn-primary" href="{% url 'students:list' %}">Kembali</a>
+      </div>
+    </div>
+
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <div class="rounded-3xl bg-cream/70 p-4">
+        <div class="text-xs uppercase tracking-[0.2em] text-stone-500">Tempat, Tanggal Lahir</div>
+        <div class="mt-2 font-semibold text-brown-dark">{{ student.tempat_lahir|default:"-" }}, {{ student.tanggal_lahir|default:"-" }}</div>
+      </div>
+      <div class="rounded-3xl bg-cream/70 p-4">
+        <div class="text-xs uppercase tracking-[0.2em] text-stone-500">Tanggal Masuk</div>
+        <div class="mt-2 font-semibold text-brown-dark">{{ student.tanggal_masuk|default:"-" }}</div>
+      </div>
+      <div class="rounded-3xl bg-cream/70 p-4">
+        <div class="text-xs uppercase tracking-[0.2em] text-stone-500">Nama Ayah</div>
+        <div class="mt-2 font-semibold text-brown-dark">{{ student.nama_ayah|default:"-" }}</div>
+      </div>
+      <div class="rounded-3xl bg-cream/70 p-4">
+        <div class="text-xs uppercase tracking-[0.2em] text-stone-500">Nama Ibu</div>
+        <div class="mt-2 font-semibold text-brown-dark">{{ student.nama_ibu|default:"-" }}</div>
+      </div>
+      <div class="rounded-3xl bg-cream/70 p-4">
+        <div class="text-xs uppercase tracking-[0.2em] text-stone-500">Nama Wali</div>
+        <div class="mt-2 font-semibold text-brown-dark">{{ student.nama_wali|default:"-" }}</div>
+      </div>
+      <div class="rounded-3xl bg-cream/70 p-4">
+        <div class="text-xs uppercase tracking-[0.2em] text-stone-500">No. WhatsApp Wali</div>
+        <div class="mt-2 font-semibold text-brown-dark">{{ student.no_wa_wali|default:"-" }}</div>
+      </div>
+      <div class="md:col-span-2 rounded-3xl bg-cream/70 p-4">
+        <div class="text-xs uppercase tracking-[0.2em] text-stone-500">Alamat</div>
+        <div class="mt-2 leading-7 text-brown-dark">{{ student.alamat|default:"-" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

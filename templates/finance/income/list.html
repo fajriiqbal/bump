@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block page_title %}Pemasukan{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Finance" title="Pemasukan" subtitle="Catat sumber pemasukan, nominal, dan bukti transaksi dengan tampilan yang lebih bersih." %}
+
+<div class="glass-panel p-5 sm:p-6">
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <span class="badge bg-cream text-brown-dark">{{ items|length }} pemasukan</span>
+    <a class="btn-primary" href="{% url 'finance:income_create' %}">Tambah Pemasukan</a>
+  </div>
+  <div class="space-y-3">
+    {% for item in items %}
+      <div class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-brown-dark">{{ item.kategori }}</h3>
+            <p class="mt-1 text-sm text-stone-500">{{ item.sumber }}</p>
+          </div>
+          <div class="text-right">
+            <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Nominal</div>
+            <div class="mt-1 text-2xl font-semibold text-brown-dark">{{ item.nominal|rupiah }}</div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      {% include "components/empty_state.html" with title="Belum ada pemasukan" description="Data pemasukan akan tampil setelah transaksi dicatat." %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

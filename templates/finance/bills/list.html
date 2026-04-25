@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block page_title %}Tagihan{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Finance" title="Daftar Tagihan Per Santri" subtitle="Gunakan filter untuk mencari tagihan aktif, menyorot tunggakan, dan membuka detail invoice dengan cepat." %}
+
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  <div class="glass-panel p-5">
+    <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Total Tagihan</div>
+    <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ summary.total_tagihan|rupiah }}</div>
+    <div class="mt-1 text-sm text-stone-500">{{ summary.bill_count }} tagihan terfilter</div>
+  </div>
+  <div class="glass-panel p-5">
+    <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Total Dibayar</div>
+    <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ summary.total_dibayar|rupiah }}</div>
+    <div class="mt-1 text-sm text-stone-500">{{ summary.paid_count }} tagihan lunas</div>
+  </div>
+  <div class="glass-panel p-5">
+    <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Sisa Tagihan</div>
+    <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ summary.total_sisa|rupiah }}</div>
+    <div class="mt-1 text-sm text-stone-500">{{ summary.student_count }} santri terlibat</div>
+  </div>
+  <div class="glass-panel p-5">
+    <div class="text-xs uppercase tracking-[0.25em] text-stone-500">Terlambat</div>
+    <div class="mt-2 text-2xl font-semibold text-brown-dark">{{ summary.overdue_count }}</div>
+    <div class="mt-1 text-sm text-stone-500">Perlu ditindaklanjuti</div>
+  </div>
+</div>
+
+<div class="glass-panel p-5 sm:p-6">
+  <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div class="flex flex-wrap gap-2">
+      <span class="badge bg-cream text-brown-dark">{{ summary.student_count }} santri</span>
+      <span class="badge bg-gold-soft/15 text-brown-primary">{{ summary.bill_count }} tagihan</span>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a class="btn-secondary" href="{% url 'finance:workflow' %}">Alur Bendahara</a>
+      <a class="btn-secondary" href="{% url 'finance:payment_type_list' %}">Jenis Pembayaran</a>
+      <a class="btn-secondary" href="{% url 'finance:bill_generate' %}">Generate Tagihan</a>
+      <a class="btn-secondary" href="{% url 'finance:reminder_schedule' %}">Pengaturan Reminder</a>
+      <a class="btn-secondary" href="{% url 'reports:export_bills_pdf' %}">Export PDF</a>
+      <a class="btn-secondary" href="{% url 'reports:export_bills_xlsx' %}">Export Excel</a>
+      <a class="btn-primary" href="{% url 'finance:payment_list' %}">Riwayat Pembayaran</a>
+    </div>
+  </div>
+
+  <form method="get" class="mb-4 rounded-2xl border border-stone-200 bg-white/90 px-4 py-4 shadow-sm">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-end">
+      <div class="min-w-0 flex-1">
+        {% include "components/form_field.html" with field=filter_form.q full=True %}
+      </div>
+      <div class="flex shrink-0 gap-2 lg:pb-1">
+        <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'finance:bill_list' %}">Reset</a>
+        <button class="btn-primary px-3 py-2 text-xs" type="submit">Cari</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="overflow-hidden rounded-3xl border border-stone-200 bg-white">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead class="bg-cream/80 text-left text-xs uppercase tracking-[0.2em] text-stone-500">
+          <tr>
+            <th class="px-5 py-4">Santri</th>
+            <th class="px-5 py-4">Tagihan</th>
+            <th class="px-5 py-4">Total</th>
+            <th class="px-5 py-4">Dibayar</th>
+            <th class="px-5 py-4">Sisa</th>
+            <th class="px-5 py-4">Jatuh Tempo</th>
+            <th class="px-5 py-4">Status</th>
+            <th class="px-5 py-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-100">
+          {% for row in student_rows %}
+            <tr class="transition hover:bg-cream/40">
+              <td class="px-5 py-4">
+                <div class="font-semibold text-brown-dark">{{ row.student.nama_lengkap }}</div>
+                <div class="mt-1 text-sm text-stone-500">{{ row.student.kelas|default:"-" }} - {{ row.student.nama_wali|default:"Wali belum diisi" }}</div>
+              </td>
+              <td class="px-5 py-4">
+                <div class="font-medium text-brown-dark">{{ row.bill_count }} tagihan</div>
+                <div class="mt-1 text-sm text-stone-500">{{ row.latest_bill_label }}</div>
+              </td>
+              <td class="px-5 py-4">{{ row.total_tagihan|rupiah }}</td>
+              <td class="px-5 py-4">{{ row.total_dibayar|rupiah }}</td>
+              <td class="px-5 py-4">{{ row.total_sisa|rupiah }}</td>
+              <td class="px-5 py-4 text-sm text-stone-600">{{ row.latest_bill_due|date:"d M Y"|default:"-" }}</td>
+              <td class="px-5 py-4">
+                <span class="badge {{ row.status_class }}">{{ row.status_label }}</span>
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'finance:bill_student_detail' row.student.pk %}">Detail</a>
+                  {% if row.reminder_bill %}
+                    <a class="btn-secondary px-3 py-2 text-xs" href="{% url 'finance:bill_invoice_pdf' row.reminder_bill.pk %}" target="_blank" rel="noopener">Invoice</a>
+                  {% endif %}
+                  {% if row.wa_url %}
+                    <a class="btn-secondary px-3 py-2 text-xs" href="{{ row.wa_url }}" target="_blank" rel="noopener">WhatsApp</a>
+                  {% else %}
+                    <span class="badge bg-stone-100 text-stone-500">No WA</span>
+                  {% endif %}
+                  {% if row.reminder_bill and row.reminder_bill.sisa_tagihan > 0 %}
+                    <form action="{% url 'notifications:send_bill_reminder' row.reminder_bill.id %}" method="post">
+                      {% csrf_token %}
+                      <button class="btn-secondary px-3 py-2 text-xs" type="submit">Kirim</button>
+                    </form>
+                    <a class="btn-primary px-3 py-2 text-xs" href="{% url 'finance:payment_create' row.reminder_bill.id %}">Bayar</a>
+                  {% else %}
+                    <span class="badge bg-emerald-100 text-emerald-700">Lunas</span>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" class="px-5 py-10">
+                {% include "components/empty_state.html" with title="Belum ada tagihan" description="Tagihan akan muncul setelah data tagihan di-generate." %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

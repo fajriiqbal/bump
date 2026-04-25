@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block page_title %}Laporan{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with eyebrow="Reports" title="Export Laporan" subtitle="Unduh laporan pembayaran, tagihan, dan kas dengan format yang mudah dibaca dan siap dibagikan." %}
+
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  <a class="glass-panel block p-6 hover:-translate-y-0.5 hover:shadow-soft" href="{% url 'reports:export_bills_pdf' %}">
+    <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">PDF</div>
+    <div class="mt-3 text-xl font-semibold text-brown-dark">Tagihan Per Santri</div>
+    <p class="mt-2 text-sm text-stone-500">Dokumen formal satu baris per santri untuk arsip, tanda tangan, atau distribusi.</p>
+  </a>
+  <a class="glass-panel block p-6 hover:-translate-y-0.5 hover:shadow-soft" href="{% url 'reports:export_bills_xlsx' %}">
+    <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">XLSX</div>
+    <div class="mt-3 text-xl font-semibold text-brown-dark">Tagihan Operator</div>
+    <p class="mt-2 text-sm text-stone-500">Data lengkap satu santri satu baris untuk sortir, rekap, dan analisis.</p>
+  </a>
+  <a class="glass-panel block p-6 hover:-translate-y-0.5 hover:shadow-soft" href="{% url 'reports:export_payments_csv' %}">
+    <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">CSV</div>
+    <div class="mt-3 text-xl font-semibold text-brown-dark">Pembayaran</div>
+    <p class="mt-2 text-sm text-stone-500">Export riwayat pembayaran harian atau bulanan.</p>
+  </a>
+  <a class="glass-panel block p-6 hover:-translate-y-0.5 hover:shadow-soft" href="{% url 'reports:export_cash_pdf' %}">
+    <div class="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">PDF</div>
+    <div class="mt-3 text-xl font-semibold text-brown-dark">Kas</div>
+    <p class="mt-2 text-sm text-stone-500">Dokumen ringkas untuk laporan kas dan pembukuan.</p>
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+  <div>
+    <div class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">{{ eyebrow|default:"Pesantren Finance" }}</div>
+    <h1 class="mt-2 text-3xl font-semibold tracking-tight text-brown-dark sm:text-4xl">{{ title }}</h1>
+    {% if subtitle %}
+      <p class="section-subtitle max-w-3xl">{{ subtitle }}</p>
+    {% endif %}
+  </div>
+  {% if actions %}
+    <div class="flex flex-wrap gap-2">{{ actions }}</div>
+  {% endif %}
+</div>

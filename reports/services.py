@@ -3,8 +3,6 @@ from pathlib import Path
 
 from django.conf import settings
 from django.utils import timezone
-from openpyxl import Workbook
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -101,6 +99,9 @@ def _summary_rows(rows):
 
 
 def build_bills_workbook():
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+
     rows = _student_rows()
     profile = PondokProfile.get_solo()
     wb = Workbook()

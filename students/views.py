@@ -12,7 +12,6 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from accounts.decorators import admin_required
 from accounts.utils import log_action
-from openpyxl import load_workbook
 
 from .forms import StudentForm, StudentImportForm
 from .models import Student
@@ -151,6 +150,8 @@ def _read_import_rows(uploaded_file):
         return normalized_rows
 
     if filename.endswith(".xlsx"):
+        from openpyxl import load_workbook
+
         workbook = load_workbook(uploaded_file, data_only=True)
         sheet = workbook.active
         rows = list(sheet.iter_rows(values_only=True))

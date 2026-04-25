@@ -114,37 +114,44 @@ Script ini akan:
 - Database development memakai `db_dev.sqlite3` agar tidak bentrok dengan file lama.
 
 ## cPanel Deployment
-1. Upload project ke folder aplikasi, misalnya `~/pesantren-app`.
-2. Buat virtual environment di cPanel > Setup Python App atau lewat terminal.
-3. Install dependencies:
+1. Buka **Git Version Control** atau **Terminal** di cPanel.
+2. Clone repo dari GitHub ke folder aplikasi, misalnya:
+```bash
+git clone https://github.com/USERNAME/NAMA-REPO.git pesantren-app
+```
+3. Masuk ke folder project:
+```bash
+cd pesantren-app
+```
+4. Buat virtual environment di cPanel > Setup Python App atau lewat terminal.
+5. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
-4. Set environment:
+6. Set environment:
 ```env
 SECRET_KEY=isi-secret-yang-kuat
 DEBUG=0
 ALLOWED_HOSTS=domainkamu.com,www.domainkamu.com
-DB_ENGINE=mysql
-DB_NAME=nama_database
-DB_USER=user_database
-DB_PASSWORD=password_database
-DB_HOST=localhost
-DB_PORT=3306
+DB_ENGINE=sqlite
 DEFAULT_FROM_EMAIL=noreply@domainkamu.com
 ```
-5. Kalau hosting memakai MySQL shared hosting, buat database dan user di cPanel lalu isi nilainya ke `.env`.
-6. Jalankan migrasi:
+7. Kalau repo GitHub kamu private, pastikan cPanel punya akses:
+- pakai GitHub deploy key / SSH key, atau
+- pakai HTTPS dengan token akses pribadi
+8. Kalau kamu mau pakai SQLite, pastikan folder project writable dan file `db_dev.sqlite3` bisa dibuat oleh aplikasi.
+9. Jalankan migrasi:
 ```bash
 python manage.py migrate
 ```
-7. Jalankan collectstatic:
+10. Jalankan collectstatic:
 ```bash
 python manage.py collectstatic --noinput
 ```
-8. Arahkan aplikasi ke `passenger_wsgi.py` sebagai entry point.
-9. Pastikan folder `media/` dan `staticfiles/` writable.
-10. Bila perlu, set domain utama atau subdomain ke folder aplikasi yang sama.
+11. Arahkan aplikasi ke `passenger_wsgi.py` sebagai entry point.
+12. Pastikan folder `media/`, `staticfiles/`, dan file database writable.
+13. Bila perlu, upload file `db_dev.sqlite3` yang sudah ada kalau ingin membawa data lokal ke server.
+14. Restart aplikasi Python di cPanel.
 
 ## Command Terminal
 ```bash

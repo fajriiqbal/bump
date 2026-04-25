@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.utils import OperationalError, ProgrammingError
 
 
 class User(AbstractUser):
@@ -61,8 +62,11 @@ class PondokProfile(models.Model):
 
     @classmethod
     def get_solo(cls):
-        profile, _ = cls.objects.get_or_create(pk=1)
-        return profile
+        try:
+            profile, _ = cls.objects.get_or_create(pk=1)
+            return profile
+        except (OperationalError, ProgrammingError):
+            return cls(pk=1)
 
     def is_complete(self):
         required_fields = [

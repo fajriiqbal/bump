@@ -1,3 +1,4 @@
+from django.db.utils import OperationalError, ProgrammingError
 from django.shortcuts import redirect
 from django.urls import reverse
 
@@ -10,7 +11,10 @@ class PondokProfileCompletionMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated and (request.user.is_superuser or getattr(request.user, "role", "") == "admin"):
-            profile = PondokProfile.get_solo()
+            try:
+                profile = PondokProfile.get_solo()
+            except (OperationalError, ProgrammingError):
+                return self.get_response(request)
             if not profile.is_complete():
                 allowed_paths = (
                     reverse("accounts:logout"),
